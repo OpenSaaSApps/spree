@@ -22,23 +22,16 @@ module Spree
 
       # Price sorting scopes that use a derived table JOIN to get prices across all variants.
       # These ensure products with only variant prices (no master price) are included in results.
-      #
-      # Uses Arel::Nodes::As for select expressions so that:
-      # - PG allows ORDER BY with DISTINCT (expressions must appear in SELECT list)
-      # - Mobility's select_for_count can safely call .right on all select_values
-      scope :ascend_by_price, -> {
+      add_search_scope :ascend_by_price do
         price_agg_sql = Price.non_zero.joins(:variant)
                             .select("#{Variant.table_name}.product_id AS product_id, MIN(#{Price.table_name}.amount) AS agg_price")
                             .group("#{Variant.table_name}.product_id")
                             .to_sql
 
-        price_expr = Arel.sql('COALESCE(price_agg.agg_price, 999999999)')
-
         joins("LEFT JOIN (#{price_agg_sql}) AS price_agg ON price_agg.product_id = #{Product.table_name}.id").
-          select("#{Product.table_name}.*").
-          select(Arel::Nodes::As.new(price_expr, Arel.sql('min_price'))).
-          order(price_expr.asc)
-      }
+          select("#{Product.table_name}.*", 'COALESCE(price_agg.agg_price, 999999999) AS min_price').
+          order(Arel.sql('COALESCE(price_agg.agg_price, 999999999) ASC'))
+      end
 
       scope :descend_by_price, -> {
         price_agg_sql = Price.non_zero.joins(:variant)
@@ -46,13 +39,10 @@ module Spree
                             .group("#{Variant.table_name}.product_id")
                             .to_sql
 
-        price_expr = Arel.sql('COALESCE(price_agg.agg_price, 0)')
-
         joins("LEFT JOIN (#{price_agg_sql}) AS price_agg ON price_agg.product_id = #{Product.table_name}.id").
-          select("#{Product.table_name}.*").
-          select(Arel::Nodes::As.new(price_expr, Arel.sql('max_price'))).
-          order(price_expr.desc)
-      }
+          select("#{Product.table_name}.*", 'COALESCE(price_agg.agg_price, 0) AS max_price').
+          order(Arel.sql('COALESCE(price_agg.agg_price, 0) DESC'))
+      end
 
       scope :price_between, ->(low, high) {
         where(Price.table_name => { amount: low..high })
@@ -70,32 +60,14 @@ module Spree
         where(Price.table_name => { amount: price.. })
       end
 
-      # Joins spree_variants and spree_stock_items directly (without association
-      # aliases) so that the table names stay as-is. This avoids alias conflicts
-      # when combined with other scopes (e.g., price sorting) that also join
-      # spree_variants through associations which generate aliases.
-      def self.join_variants_and_stock_items
-        joins("INNER JOIN #{Variant.table_name} ON #{Variant.table_name}.deleted_at IS NULL AND #{Variant.table_name}.product_id = #{Product.table_name}.id").
-          joins("LEFT OUTER JOIN #{StockItem.table_name} ON #{StockItem.table_name}.deleted_at IS NULL AND #{StockItem.table_name}.variant_id = #{Variant.table_name}.id")
-      end
-      private_class_method :join_variants_and_stock_items
-
-      # Mirrors Spree::Variant.in_stock_or_backorderable logic using raw table
-      # names (to pair with join_variants_and_stock_items).
-      scope :in_stock_or_backorderable_condition, -> {
-        where(
-          "#{Variant.table_name}.track_inventory = ? OR #{StockItem.table_name}.count_on_hand > ? OR #{StockItem.table_name}.backorderable = ?",
-          false, 0, true
-        )
-      }
-
+      # Can't use add_search_scope for this as it needs a default argument
       # Ransack calls with '1' to activate, '0' or nil to skip
       # In Ruby code: in_stock(true) for in-stock, in_stock(false) for out-of-stock
       def self.in_stock(in_stock = true)
         if in_stock == '0' || !in_stock
           all
         else
-          join_variants_and_stock_items.in_stock_or_backorderable_condition
+          joins(:variants_including_master).merge(Spree::Variant.in_stock_or_backorderable)
         end
       end
 
@@ -111,16 +83,16 @@ module Spree
         if out_of_stock == '0' || !out_of_stock
           all
         else
-          where.not(id: join_variants_and_stock_items.in_stock_or_backorderable_condition)
+          where.not(id: joins(:variants_including_master).merge(Spree::Variant.in_stock_or_backorderable))
         end
       end
 
-      def self.backorderable
-        join_variants_and_stock_items.where(StockItem.table_name => { backorderable: true })
+      add_search_scope :backorderable do
+        joins(:variants_including_master).merge(Spree::Variant.backorderable)
       end
 
-      def self.in_stock_or_backorderable
-        join_variants_and_stock_items.in_stock_or_backorderable_condition
+      add_search_scope :in_stock_or_backorderable do
+        joins(:variants_including_master).merge(Spree::Variant.in_stock_or_backorderable)
       end
 
       # This scope selects products in taxon AND all its descendants
@@ -137,12 +109,11 @@ module Spree
           where("#{Classification.table_name}.taxon_id" => taxon.cached_self_and_descendants_ids).distinct
       }
 
-      # Alias for in_taxon — public API name
-      scope :in_category, ->(category) { in_taxon(category) }
-
-      # Deprecated — remove in 6.0. Use in_taxon instead.
-      def self.in_taxons(*taxons)
-        Spree::Deprecation.warn('in_taxons is deprecated and will be removed in Spree 6.0. Use in_taxon instead.')
+      # This scope selects products in all taxons AND all its descendants
+      # If you need products only within one taxon use
+      #
+      #   Spree::Product.taxons_id_eq([x,y])
+      add_search_scope :in_taxons do |*taxons|
         taxons = get_taxons(taxons)
         taxons.first ? prepare_taxon_conditions(taxons) : where(nil)
       end
@@ -203,8 +174,10 @@ module Spree
 
         next none if actual_ids.empty?
 
-        joins(variants: :option_values).where(Spree::OptionValue.table_name => { id: actual_ids })
-      }
+        group("#{Spree::Product.table_name}.id").
+          joins(variants: :option_values).
+          where(Spree::OptionValue.table_name => { id: actual_ids })
+      end
 
       # Deprecated — remove in 6.0. Not used internally.
       def self.with(value)
@@ -342,6 +315,98 @@ module Spree
       def self.search_by_name(query)
         i18n { name.lower.matches("%#{query.downcase}%") }
       end
+
+      def self.not_discontinued(only_not_discontinued = true)
+        if only_not_discontinued != '0' && only_not_discontinued
+          where(discontinue_on: [nil, Time.current.beginning_of_minute..])
+        else
+          all
+        end
+      end
+      search_scopes << :not_discontinued
+
+      def self.with_currency(currency)
+        joins(variants_including_master: :prices).
+          where(Price.table_name => { currency: currency.upcase }).
+          where.not(Price.table_name => { amount: nil }).
+          distinct
+      end
+      search_scopes << :with_currency
+
+      # Can't use add_search_scope for this as it needs a default argument
+      def self.available(available_on = nil, currency = nil)
+        scope = not_discontinued.where(status: 'active')
+        if available_on
+          available_on = available_on.beginning_of_minute if available_on.respond_to?(:beginning_of_minute)
+          scope = scope.where("#{Product.quoted_table_name}.available_on <= ?", available_on)
+        end
+
+        unless Spree::Config.show_products_without_price
+          currency ||= Spree::Store.default.default_currency
+          scope = scope.with_currency(currency)
+        end
+
+        scope
+      end
+      search_scopes << :available
+
+      def self.active(currency = nil)
+        available(nil, currency)
+      end
+      search_scopes << :active
+
+      def self.for_filters(currency, taxon: nil)
+        scope = active(currency)
+        scope = scope.in_taxon(taxon) if taxon.present?
+        scope
+      end
+      search_scopes << :for_filters
+
+      def self.for_user(user = nil)
+        if user.try(:has_spree_role?, 'admin')
+          with_deleted
+        else
+          not_deleted.where(status: 'active')
+        end
+      end
+
+      add_search_scope :taxons_name_eq do |name|
+        group('spree_products.id').joins(:taxons).where(Taxon.arel_table[:name].eq(name))
+      end
+
+      # Orders products by best selling based on units_sold_count and revenue
+      # stored in spree_products_stores table.
+      #
+      # These metrics are updated asynchronously when orders are completed
+      # via the ProductMetricsSubscriber.
+      #
+      # @param order_direction [Symbol] :desc (default) or :asc
+      # @return [ActiveRecord::Relation]
+      add_search_scope :by_best_selling do |order_direction = :desc|
+        store_id = Spree::Current.store&.id
+        sp_table = StoreProduct.arel_table
+        products_table = Product.arel_table
+
+        conditions = sp_table[:product_id].eq(products_table[:id]).and(sp_table[:store_id].eq(store_id))
+
+        units_sold = Arel::Nodes::NamedFunction.new('COALESCE', [sp_table.project(sp_table[:units_sold_count]).where(conditions), 0])
+        revenue = Arel::Nodes::NamedFunction.new('COALESCE', [sp_table.project(sp_table[:revenue]).where(conditions), 0])
+
+        order_dir = order_direction == :desc ? :desc : :asc
+        order(units_sold.send(order_dir)).order(revenue.send(order_dir))
+      end
+
+      # .search_by_name
+      if defined?(PgSearch)
+        include PgSearch::Model
+
+        pg_search_scope :search_by_name, against: { name: 'A', meta_title: 'B' }, using: { trigram: { threshold: 0.3, word_similarity: true } }
+      else
+        def self.search_by_name(query)
+          i18n { name.lower.matches("%#{query.downcase}%") }
+        end
+      end
+      search_scopes << :search_by_name
 
       def self.price_table_name
         Price.quoted_table_name

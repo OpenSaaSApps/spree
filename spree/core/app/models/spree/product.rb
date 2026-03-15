@@ -114,10 +114,12 @@ module Spree
     has_many :orders, through: :line_items
     has_many :completed_orders, -> { reorder(nil).distinct.complete }, through: :line_items, source: :order
 
+    has_many :media, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: 'Spree::Asset'
+
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
     has_many :variant_images_without_master, -> { order(:position) }, source: :images, through: :variants
 
-    belongs_to :thumbnail, class_name: 'Spree::Image', optional: true
+    belongs_to :thumbnail, class_name: 'Spree::Asset', optional: true
 
     has_many :option_value_variants, class_name: 'Spree::OptionValueVariant', through: :variants
     has_many :option_values, class_name: 'Spree::OptionValue', through: :variants
@@ -335,6 +337,13 @@ module Spree
       @default_variant_id ||= default_variant.id
     end
 
+    # Returns the product's media gallery.
+    # Uses product-level media if present, otherwise falls back to variant images.
+    # @return [ActiveRecord::Relation]
+    def gallery_media
+      media.any? ? media : variant_images
+    end
+
     # Returns true if any variant (including master) has images.
     # Uses loaded association when available, otherwise falls back to counter cache.
     # @return [Boolean]
@@ -356,7 +365,7 @@ module Spree
 
     # Returns default Image for Product.
     # Uses cached thumbnail_id which is updated when images are added/removed/reordered.
-    # @return [Spree::Image, nil]
+    # @return [Spree::Asset, nil]
     def default_image
       thumbnail
     end
@@ -370,7 +379,7 @@ module Spree
     end
 
     # Returns secondary Image for Product (for hover effects).
-    # @return [Spree::Image, nil]
+    # @return [Spree::Asset, nil]
     def secondary_image
       variant_for_images&.secondary_image
     end
@@ -384,11 +393,12 @@ module Spree
       variant_for_images&.image_count || 0
     end
 
-    # Updates the thumbnail_id to the first image from variant_images.
-    # Called when images are added, removed, or reordered on any variant.
+    # Updates the thumbnail_id to the first media item.
+    # Checks product-level media first, then falls back to variant images.
+    # Called when media is added, removed, or reordered.
     def update_thumbnail!
-      first_image = variant_images.order(:position).first
-      update_column(:thumbnail_id, first_image&.id)
+      first_media = media.order(:position).first || variant_images.order(:position).first
+      update_column(:thumbnail_id, first_media&.id)
     end
 
     # Finds first variant with images using preloaded data when available.

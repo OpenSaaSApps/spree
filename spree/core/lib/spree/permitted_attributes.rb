@@ -71,6 +71,7 @@ module Spree
       :theme_attributes,
       :user_attributes,
       :variant_attributes,
+      :variant_media_attributes,
       :webhook_endpoint_attributes,
       :wishlist_attributes,
       :wished_item_attributes,
@@ -92,7 +93,8 @@ module Spree
 
     @@api_key_attributes = [:name, :key_type]
 
-    @@asset_attributes = [:type, :viewable_id, :viewable_type, :attachment, :alt, :position]
+    @@asset_attributes = [:type, :viewable_id, :viewable_type, :attachment, :alt, :position,
+                          :media_type, :focal_point_x, :focal_point_y, :external_video_url]
 
     @@checkout_attributes = [
       :coupon_code, :email, :shipping_method_id, :special_instructions, :use_billing, :use_shipping,
@@ -317,6 +319,8 @@ module Spree
         option_value_ids: []
       }
     ]
+
+    @@variant_media_attributes = [:asset_id, :variant_id, :position]
 
     @@webhook_endpoint_attributes = [:url, :secret, :active, subscriptions: []]
 

@@ -48,8 +48,11 @@ module Spree
     has_many :option_value_variants, class_name: 'Spree::OptionValueVariant'
     has_many :option_values, through: :option_value_variants, dependent: :destroy, class_name: 'Spree::OptionValue'
 
-    has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: 'Spree::Image'
-    belongs_to :thumbnail, class_name: 'Spree::Image', optional: true
+    has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: 'Spree::Asset'
+    belongs_to :thumbnail, class_name: 'Spree::Asset', optional: true
+
+    has_many :variant_media, class_name: 'Spree::VariantMedia', dependent: :destroy
+    has_many :associated_media, -> { order('spree_variant_media.position') }, through: :variant_media, source: :asset, class_name: 'Spree::Asset'
 
     has_many :prices,
              class_name: 'Spree::Price',
@@ -279,6 +282,13 @@ module Spree
       is_master? ? name + ' - Master' : name + ' - ' + options_text
     end
 
+    # Returns the variant's media gallery.
+    # Uses associated media from the join table if present, otherwise falls back to direct images.
+    # @return [ActiveRecord::Relation]
+    def gallery_media
+      associated_media.any? ? associated_media : images
+    end
+
     # Returns true if the variant has images.
     # Uses loaded association when available, otherwise falls back to counter cache.
     # @return [Boolean]
@@ -289,7 +299,7 @@ module Spree
     end
 
     # Returns default Image for Variant.
-    # @return [Spree::Image, nil]
+    # @return [Spree::Asset, nil]
     def default_image
       thumbnail
     end

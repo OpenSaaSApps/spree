@@ -64,7 +64,7 @@ RSpec.describe Spree::Api::V3::GiftCardSerializer do
   context 'with expired gift card' do
     let(:gift_card) { create(:gift_card, :expired, store: store, amount: 50) }
 
-    it 'returns expired state' do
+    it 'returns expired status' do
       expect(subject['status']).to eq('expired')
       expect(subject['expired']).to be true
       expect(subject['active']).to be false
@@ -78,7 +78,7 @@ RSpec.describe Spree::Api::V3::GiftCardSerializer do
   context 'with redeemed gift card' do
     let(:gift_card) { create(:gift_card, :redeemed, store: store, amount: 50) }
 
-    it 'returns redeemed state' do
+    it 'returns redeemed status' do
       expect(subject['status']).to eq('redeemed')
     end
 
@@ -94,7 +94,7 @@ RSpec.describe Spree::Api::V3::GiftCardSerializer do
   context 'with partially redeemed gift card' do
     let(:gift_card) { create(:gift_card, store: store, state: :partially_redeemed, amount: 100, amount_used: 40) }
 
-    it 'returns partially_redeemed state' do
+    it 'returns partially_redeemed status' do
       expect(subject['status']).to eq('partially_redeemed')
     end
 

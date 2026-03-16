@@ -1,6 +1,6 @@
 namespace :spree do
   namespace :products do
-    desc 'Reset counter caches (variant_count, classification_count, total_image_count) on products'
+    desc 'Reset counter caches (variant_count, classification_count, media_count) on products'
     task reset_counter_caches: :environment do |_t, _args|
       puts 'Resetting product counter caches...'
 
@@ -8,7 +8,7 @@ namespace :spree do
         product.update_columns(
           variant_count: product.variants.count,
           classification_count: product.classifications.count,
-          total_image_count: product.variant_images.count,
+          media_count: product.media.count + product.variant_images.count,
           updated_at: Time.current
         )
         print '.'

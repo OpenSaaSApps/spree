@@ -5,10 +5,12 @@ namespace :spree do
       puts 'Resetting product counter caches...'
 
       Spree::Product.find_each do |product|
+        total_media = product.media.count + product.variant_images.where.not(id: product.media.select(:id)).count
+
         product.update_columns(
           variant_count: product.variants.count,
           classification_count: product.classifications.count,
-          media_count: product.media.count + product.variant_images.count,
+          media_count: total_media,
           updated_at: Time.current
         )
         print '.'

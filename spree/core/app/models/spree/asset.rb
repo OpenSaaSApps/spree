@@ -120,7 +120,7 @@ module Spree
     end
 
     def event_prefix
-      'asset'
+      'media'
     end
 
     # @deprecated

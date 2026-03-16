@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_16_104369) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_16_114857) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -207,6 +207,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_104369) do
     t.datetime "updated_at", precision: nil
     t.bigint "viewable_id"
     t.string "viewable_type"
+    t.index ["media_type"], name: "index_spree_assets_on_media_type"
     t.index ["position"], name: "index_spree_assets_on_position"
     t.index ["viewable_id"], name: "index_assets_on_viewable_id"
     t.index ["viewable_type", "type"], name: "index_assets_on_viewable_type_and_type"
@@ -1025,6 +1026,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_104369) do
     t.string "meta_keywords"
     t.string "meta_title"
     t.string "name", default: "", null: false
+    t.bigint "primary_media_id"
     t.jsonb "private_metadata"
     t.boolean "promotionable", default: true
     t.jsonb "public_metadata"
@@ -1032,7 +1034,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_104369) do
     t.string "slug"
     t.string "status", default: "draft", null: false
     t.bigint "tax_category_id"
-    t.bigint "thumbnail_id"
     t.datetime "updated_at", null: false
     t.integer "variant_count", default: 0, null: false
     t.index ["available_on"], name: "index_spree_products_on_available_on"
@@ -1042,13 +1043,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_104369) do
     t.index ["make_active_at"], name: "index_spree_products_on_make_active_at"
     t.index ["media_count"], name: "index_spree_products_on_media_count"
     t.index ["name"], name: "index_spree_products_on_name"
+    t.index ["primary_media_id"], name: "index_spree_products_on_primary_media_id"
     t.index ["promotionable"], name: "index_spree_products_on_promotionable"
     t.index ["shipping_category_id"], name: "index_spree_products_on_shipping_category_id"
     t.index ["slug"], name: "index_spree_products_on_slug", unique: true
     t.index ["status", "deleted_at"], name: "index_spree_products_on_status_and_deleted_at"
     t.index ["status"], name: "index_spree_products_on_status"
     t.index ["tax_category_id"], name: "index_spree_products_on_tax_category_id"
-    t.index ["thumbnail_id"], name: "index_spree_products_on_thumbnail_id"
     t.index ["variant_count"], name: "index_spree_products_on_variant_count"
   end
 
@@ -1906,12 +1907,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_104369) do
     t.boolean "is_master", default: false
     t.integer "media_count", default: 0, null: false
     t.integer "position"
+    t.bigint "primary_media_id"
     t.jsonb "private_metadata"
     t.bigint "product_id"
     t.jsonb "public_metadata"
     t.string "sku", default: "", null: false
     t.bigint "tax_category_id"
-    t.bigint "thumbnail_id"
     t.boolean "track_inventory", default: true
     t.datetime "updated_at", precision: nil, null: false
     t.decimal "weight", precision: 8, scale: 2, default: "0.0"
@@ -1923,10 +1924,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_104369) do
     t.index ["is_master"], name: "index_spree_variants_on_is_master"
     t.index ["media_count"], name: "index_spree_variants_on_media_count"
     t.index ["position"], name: "index_spree_variants_on_position"
+    t.index ["primary_media_id"], name: "index_spree_variants_on_primary_media_id"
     t.index ["product_id"], name: "index_spree_variants_on_product_id"
     t.index ["sku"], name: "index_spree_variants_on_sku"
     t.index ["tax_category_id"], name: "index_spree_variants_on_tax_category_id"
-    t.index ["thumbnail_id"], name: "index_spree_variants_on_thumbnail_id"
     t.index ["track_inventory"], name: "index_spree_variants_on_track_inventory"
   end
 

@@ -51,9 +51,6 @@ module Spree
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: 'Spree::Asset'
     belongs_to :thumbnail, class_name: 'Spree::Asset', optional: true
 
-    has_many :variant_media, class_name: 'Spree::VariantMedia', dependent: :destroy
-    has_many :associated_media, -> { order('spree_variant_media.position') }, through: :variant_media, source: :asset, class_name: 'Spree::Asset'
-
     has_many :prices,
              class_name: 'Spree::Price',
              dependent: :destroy,
@@ -283,10 +280,10 @@ module Spree
     end
 
     # Returns the variant's media gallery.
-    # Uses associated media from the join table if present, otherwise falls back to direct images.
+    # Currently returns direct images. In 6.0 will use variant_media join table.
     # @return [ActiveRecord::Relation]
     def gallery_media
-      associated_media.any? ? associated_media : images
+      images
     end
 
     # Returns true if the variant has images.

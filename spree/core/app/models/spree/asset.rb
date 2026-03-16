@@ -28,9 +28,6 @@ module Spree
     belongs_to :viewable, polymorphic: true, touch: true
     acts_as_list scope: [:viewable_id, :viewable_type]
 
-    has_many :variant_media, class_name: 'Spree::VariantMedia', dependent: :destroy
-    has_many :associated_variants, through: :variant_media, source: :variant, class_name: 'Spree::Variant'
-
     delegate :key, :attached?, :variant, :variable?, :blob, :filename, :variation, to: :attachment
 
     validates :media_type, inclusion: { in: MEDIA_TYPES }, allow_nil: true

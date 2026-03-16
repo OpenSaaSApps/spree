@@ -70,9 +70,10 @@ module Spree
         end
 
         # Conditional associations
-        many :images,
-             resource: Spree.api.image_serializer,
-             if: proc { expand?('images') }
+        many :gallery_media,
+             key: :media,
+             resource: Spree.api.media_serializer,
+             if: proc { expand?('media') }
 
         many :option_values, resource: Spree.api.option_value_serializer
 

@@ -71,7 +71,6 @@ module Spree
       :theme_attributes,
       :user_attributes,
       :variant_attributes,
-      :variant_media_attributes,
       :webhook_endpoint_attributes,
       :wishlist_attributes,
       :wished_item_attributes,
@@ -319,8 +318,6 @@ module Spree
         option_value_ids: []
       }
     ]
-
-    @@variant_media_attributes = [:asset_id, :variant_id, :position]
 
     @@webhook_endpoint_attributes = [:url, :secret, :active, subscriptions: []]
 

@@ -93,22 +93,6 @@ RSpec.describe 'Product media system', type: :model do
         expect(product.reload.thumbnail_id).to be_nil
       end
     end
-
-    describe 'variant_media association' do
-      let(:product) { create(:product) }
-      let(:variant) { create(:variant, product: product) }
-      let(:image) { create(:image, viewable: product) }
-
-      it 'can be associated with variants via VariantMedia' do
-        create(:variant_media, variant: variant, asset: image)
-        expect(image.associated_variants).to include(variant)
-      end
-
-      it 'destroys variant_media when asset is destroyed' do
-        create(:variant_media, variant: variant, asset: image)
-        expect { image.destroy }.to change(Spree::VariantMedia, :count).by(-1)
-      end
-    end
   end
 
   describe 'Spree::Product' do
@@ -164,23 +148,9 @@ RSpec.describe 'Product media system', type: :model do
     let(:variant) { create(:variant, product: product) }
 
     describe '#gallery_media' do
-      it 'returns associated media when present' do
-        product_image = create(:image, viewable: product)
-        create(:variant_media, variant: variant, asset: product_image)
-        expect(variant.gallery_media).to include(product_image)
-      end
-
-      it 'falls back to direct images when no associated media' do
+      it 'returns direct images' do
         direct_image = create(:image, viewable: variant)
         expect(variant.gallery_media).to include(direct_image)
-      end
-    end
-
-    describe '#variant_media' do
-      it 'is destroyed when variant is destroyed' do
-        product_image = create(:image, viewable: product)
-        create(:variant_media, variant: variant, asset: product_image)
-        expect { variant.destroy }.to change(Spree::VariantMedia, :count).by(-1)
       end
     end
   end

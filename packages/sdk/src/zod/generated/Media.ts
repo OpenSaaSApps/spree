@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const MediaSchema = z.object({
   id: z.string(),
   product_id: z.string().nullable(),
+  variant_ids: z.array(z.string()),
   position: z.number(),
   alt: z.string().nullable(),
   media_type: z.string(),

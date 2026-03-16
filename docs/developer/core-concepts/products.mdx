@@ -244,13 +244,13 @@ curl 'https://api.mystore.com/api/v3/store/products/spree-tee?expand=option_type
 Option type `name` and `presentation` fields are translatable.
 </Info>
 
-## Images
+## Media
 
-Images can be attached to the product (via the master variant) or to individual variants. When displaying a product, show the images for the selected variant, falling back to the product-level images.
+Media can be attached to the product (via the master variant) or to individual variants. When displaying a product, show the images for the selected variant, falling back to the product-level images.
 
 ### Thumbnails
 
-Every product response includes a `thumbnail_url` field — the URL to the first image, ready to use without any expands. Similarly, each variant includes a `thumbnail` URL and an `image_count` counter.
+Every product response includes a `thumbnail_url` field — the URL to the first image, ready to use without any expands. Similarly, each variant includes a `thumbnail_url` URL and an `media_count` counter.
 
 Use these fields for product listing pages to avoid loading all images:
 
@@ -291,10 +291,10 @@ const product = await client.products.get('spree-tote', {
 // Product-level images (from master variant)
 product.media // [{ url: "https://cdn.../tote-front.jpg", position: 1 }, ...]
 
-// Each variant has its own thumbnail and image_count
+// Each variant has its own thumbnail and media_count
 product.variants?.forEach(variant => {
   variant.thumbnail    // "https://cdn.../tote-red.jpg" — always available
-  variant.image_count  // 3 — quick check without loading images
+  variant.media_count  // 3 — quick check without loading media
   variant.media        // full image array (only when ?expand=media)
 })
 ```
@@ -308,9 +308,9 @@ curl 'https://api.mystore.com/api/v3/store/products/spree-tote?expand=media,vari
 
 | Field | Available on | Always returned | Description |
 |-------|-------------|:---:|-------------|
-| `thumbnail_url` | Product | Yes | URL to the product's first image |
-| `thumbnail` | Variant | Yes | URL to the variant's first image |
-| `image_count` | Variant | Yes | Number of images (counter cache — no DB query) |
+| `thumbnail_url` | Product | Yes | URL to the product's first media |
+| `thumbnail_url` | Variant | Yes | URL to the variant's first media |
+| `media_count` | Variant | Yes | Number of media |
 | `media` | Product, Variant | No | Full image array (requires `?expand=media`) |
 
 ## Prices

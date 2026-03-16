@@ -100,7 +100,7 @@ curl 'https://api.mystore.com/api/v3/store/products/spree-tote?expand=media,vari
 
 ```json
 {
-  "id": "asset_k5nR8xLq",
+  "id": "media_k5nR8xLq",
   "media_type": "image",
   "product_id": "prod_86Rf07xd4z",
   "variant_ids": ["variant_m3Rp9wXz"],
@@ -131,7 +131,7 @@ curl 'https://api.mystore.com/api/v3/store/products/spree-tote?expand=media,vari
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `id` | string | Prefixed ID (`asset_xxx`) |
+| `id` | string | Prefixed ID (`media_xxx`) |
 | `media_type` | string | `image`, `video`, or `external_video` |
 | `product_id` | string \| null | Owning product prefixed ID |
 | `variant_ids` | string[] | Associated variant prefixed IDs (empty = product-level) |

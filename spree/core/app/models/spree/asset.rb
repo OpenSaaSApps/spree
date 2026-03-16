@@ -1,6 +1,6 @@
 module Spree
   class Asset < Spree.base_class
-    has_prefix_id :asset  # Stripe: file_
+    has_prefix_id :media
 
     include Support::ActiveStorage
     include Rails.application.routes.url_helpers

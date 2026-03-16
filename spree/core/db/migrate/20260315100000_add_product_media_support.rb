@@ -7,6 +7,9 @@ class AddProductMediaSupport < ActiveRecord::Migration[7.2]
 
     add_index :spree_assets, :media_type
 
+    rename_column :spree_variants, :image_count, :media_count
+    rename_column :spree_products, :total_image_count, :media_count
+
     reversible do |dir|
       dir.up do
         Spree::Asset.unscoped.where(media_type: nil).update_all(media_type: 'image')

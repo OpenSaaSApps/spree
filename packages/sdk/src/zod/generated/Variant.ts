@@ -12,7 +12,7 @@ export const VariantSchema = z.object({
   is_master: z.boolean(),
   options_text: z.string(),
   track_inventory: z.boolean(),
-  image_count: z.number(),
+  media_count: z.number(),
   created_at: z.string(),
   updated_at: z.string(),
   thumbnail: z.string().nullable(),

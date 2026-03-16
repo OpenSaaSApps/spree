@@ -286,14 +286,16 @@ module Spree
       images
     end
 
-    # Returns true if the variant has images.
+    # Returns true if the variant has media.
     # Uses loaded association when available, otherwise falls back to counter cache.
     # @return [Boolean]
-    def has_images?
+    def has_media?
       return images.any? if images.loaded?
 
-      image_count.positive?
+      media_count.positive?
     end
+
+    alias has_images? has_media?
 
     # Returns default Image for Variant.
     # @return [Spree::Asset, nil]

@@ -904,42 +904,38 @@ describe Spree::Product, type: :model do
     end
   end
 
-  describe '#image_count' do
+  describe '#media_count' do
     let(:product) { create(:product, stores: [store]) }
 
-    context 'when no variants have images' do
+    context 'when no variants have media' do
       it 'returns 0' do
-        expect(product.image_count).to eq(0)
+        expect(product.media_count).to eq(0)
       end
     end
 
-    context 'when master has images' do
+    context 'when master has media' do
       let!(:images) { create_list(:image, 2, viewable: product.master) }
 
-      it 'returns the master image count' do
-        expect(product.reload.image_count).to eq(2)
+      it 'returns total media count' do
+        expect(product.reload.media_count).to eq(2)
       end
 
-      context 'when variant also has images' do
+      context 'when variant also has media' do
         let!(:variant) { create(:variant, product: product) }
         let!(:variant_images) { create_list(:image, 3, viewable: variant) }
 
-        it 'returns master image count (master takes priority)' do
-          product.reload
-          expect(product.variant_for_images).to eq(product.master)
-          expect(product.image_count).to eq(2)
+        it 'returns total across all variants' do
+          expect(product.reload.media_count).to eq(5)
         end
       end
     end
 
-    context 'when only variant has images' do
+    context 'when only variant has media' do
       let!(:variant) { create(:variant, product: product) }
       let!(:variant_images) { create_list(:image, 3, viewable: variant) }
 
-      it 'returns the variant image count' do
-        product.reload
-        expect(product.variant_for_images).to eq(variant)
-        expect(product.image_count).to eq(3)
+      it 'returns the variant media count' do
+        expect(product.reload.media_count).to eq(3)
       end
     end
   end

@@ -2,6 +2,5 @@
 # This class will be removed in Spree 6.0.
 module Spree
   class Image < Asset
-    self.inheritance_column = nil
   end
 end

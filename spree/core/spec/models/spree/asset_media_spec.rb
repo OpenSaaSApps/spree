@@ -69,17 +69,17 @@ RSpec.describe 'Product media system', type: :model do
     describe 'counter caches with product viewable' do
       let(:product) { create(:product) }
 
-      it 'increments total_image_count on product when image is created' do
+      it 'increments media_count on product when image is created' do
         expect {
           create(:image, viewable: product)
-        }.to change { product.reload.total_image_count }.by(1)
+        }.to change { product.reload.media_count }.by(1)
       end
 
-      it 'decrements total_image_count on product when image is destroyed' do
+      it 'decrements media_count on product when image is destroyed' do
         image = create(:image, viewable: product)
         expect {
           image.destroy
-        }.to change { product.reload.total_image_count }.by(-1)
+        }.to change { product.reload.media_count }.by(-1)
       end
     end
 
@@ -124,12 +124,12 @@ RSpec.describe 'Product media system', type: :model do
       it 'returns product media when present' do
         product_image = create(:image, viewable: product)
         create(:image, viewable: product.master) # variant image
-        expect(product.gallery_media).to include(product_image)
+        expect(product.reload.gallery_media).to include(product_image)
       end
 
       it 'falls back to variant_images when no product media' do
         variant_image = create(:image, viewable: product.master)
-        expect(product.gallery_media).to include(variant_image)
+        expect(product.reload.gallery_media).to include(variant_image)
       end
     end
 

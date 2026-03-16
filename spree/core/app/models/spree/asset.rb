@@ -81,8 +81,8 @@ module Spree
     after_commit :update_viewable_thumbnail_on_reorder, on: :update, if: :saved_change_to_position?
     after_commit :update_viewable_thumbnail_on_viewable_change, on: :update, if: :saved_change_to_viewable_id?
 
-    after_create :increment_viewable_image_count
-    after_destroy :decrement_viewable_image_count
+    after_create :increment_viewable_media_count
+    after_destroy :decrement_viewable_media_count
 
     def product
       @product ||= case viewable_type
@@ -152,23 +152,23 @@ module Spree
         saved_change_to_position?
     end
 
-    def increment_viewable_image_count
+    def increment_viewable_media_count
       case viewable_type
       when 'Spree::Variant'
-        Spree::Variant.increment_counter(:image_count, viewable_id)
-        Spree::Product.increment_counter(:total_image_count, viewable.product_id)
+        Spree::Variant.increment_counter(:media_count, viewable_id)
+        Spree::Product.increment_counter(:media_count, viewable.product_id)
       when 'Spree::Product'
-        Spree::Product.increment_counter(:total_image_count, viewable_id)
+        Spree::Product.increment_counter(:media_count, viewable_id)
       end
     end
 
-    def decrement_viewable_image_count
+    def decrement_viewable_media_count
       case viewable_type
       when 'Spree::Variant'
-        Spree::Variant.decrement_counter(:image_count, viewable_id)
-        Spree::Product.decrement_counter(:total_image_count, viewable.product_id)
+        Spree::Variant.decrement_counter(:media_count, viewable_id)
+        Spree::Product.decrement_counter(:media_count, viewable.product_id)
       when 'Spree::Product'
-        Spree::Product.decrement_counter(:total_image_count, viewable_id)
+        Spree::Product.decrement_counter(:media_count, viewable_id)
       end
     end
 

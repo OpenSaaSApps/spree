@@ -341,20 +341,22 @@ module Spree
     # Uses product-level media if present, otherwise falls back to variant images.
     # @return [ActiveRecord::Relation]
     def gallery_media
-      media.any? ? media : variant_images
+      return media if association(:media).loaded? ? media.any? : media.exists?
+
+      variant_images
     end
 
-    # Returns true if any variant (including master) has images.
-    # Uses loaded association when available, otherwise falls back to counter cache.
+    # Returns true if the product has any media (product-level or variant-level).
+    # Uses counter cache for performance.
     # @return [Boolean]
-    def has_variant_images?
+    def has_media?
       return variant_images.any? if association(:variant_images).loaded?
 
-      total_image_count.positive?
+      media_count.positive?
     end
 
-    # Alias for has_variant_images? for consistency with Variant#has_images?
-    alias has_images? has_variant_images?
+    alias has_images? has_media?
+    alias has_variant_images? has_media?
 
     # Returns the variant that should be used for displaying images.
     # Priority: master > default_variant > first variant with images
@@ -387,10 +389,9 @@ module Spree
     # Alias for default_image for consistency.
     alias primary_image default_image
 
-    # Returns the image count from the variant used for displaying images.
-    # @return [Integer]
+    # @deprecated Use media_count instead
     def image_count
-      variant_for_images&.image_count || 0
+      media_count
     end
 
     # Updates the thumbnail_id to the first media item.
@@ -401,10 +402,10 @@ module Spree
       update_column(:thumbnail_id, first_media&.id)
     end
 
-    # Finds first variant with images using preloaded data when available.
+    # Finds first variant with media using preloaded data when available.
     # @return [Spree::Variant, nil]
     def find_variant_with_images
-      return variants.find(&:has_images?) if variants.loaded?
+      return variants.find(&:has_media?) if variants.loaded?
 
       variants.joins(:images).first
     end
@@ -640,12 +641,12 @@ module Spree
 
     private
 
-    # Determines which variant should be used for displaying images.
-    # Priority: master > default_variant > first variant with images
+    # Determines which variant should be used for displaying media.
+    # Priority: master > default_variant > first variant with media
     def find_variant_for_images
-      return master if master.has_images?
-      return default_variant if has_variants? && default_variant.has_images?
-      return find_variant_with_images if has_variant_images?
+      return master if master.has_media?
+      return default_variant if has_variants? && default_variant.has_media?
+      return find_variant_with_images if has_media?
 
       nil
     end

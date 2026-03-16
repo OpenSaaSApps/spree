@@ -45,7 +45,7 @@ module Spree
           # Override inherited associations to use admin serializers
           many :order_promotions, key: :promotions, resource: Spree.api.admin_order_promotion_serializer, if: proc { expand?('promotions') }
           many :line_items, key: :items, resource: Spree.api.admin_line_item_serializer, if: proc { expand?('items') }
-          many :shipments, resource: Spree.api.admin_shipment_serializer, if: proc { expand?('shipments') }
+          many :shipments, key: :fulfillments, resource: Spree.api.admin_fulfillment_serializer, if: proc { expand?('fulfillments') }
           many :payments, resource: Spree.api.admin_payment_serializer, if: proc { expand?('payments') }
 
           one :bill_address, resource: Spree.api.admin_address_serializer, if: proc { expand?('bill_address') }

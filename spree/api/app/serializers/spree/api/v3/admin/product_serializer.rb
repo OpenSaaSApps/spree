@@ -37,6 +37,10 @@ module Spree
               resource: Spree.api.admin_variant_serializer,
               if: proc { expand?('master_variant') }
 
+          one :primary_media,
+              resource: Spree.api.admin_media_serializer,
+              if: proc { expand?('primary_media') }
+
           many :gallery_media,
                key: :media,
                resource: Spree.api.admin_media_serializer,

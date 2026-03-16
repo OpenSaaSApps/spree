@@ -110,46 +110,46 @@ describe Spree::Image, type: :model do
     end
   end
 
-  describe 'thumbnail_id updates' do
+  describe 'primary_media_id updates' do
     let(:product) { create(:product) }
     let(:variant) { product.master }
 
-    it 'sets variant thumbnail_id when first image is created' do
-      expect(variant.thumbnail_id).to be_nil
+    it 'sets variant primary_media_id when first image is created' do
+      expect(variant.primary_media_id).to be_nil
       image = create(:image, viewable: variant)
-      expect(variant.reload.thumbnail_id).to eq(image.id)
+      expect(variant.reload.primary_media_id).to eq(image.id)
     end
 
-    it 'sets product thumbnail_id when first image is created' do
-      expect(product.thumbnail_id).to be_nil
+    it 'sets product primary_media_id when first image is created' do
+      expect(product.primary_media_id).to be_nil
       image = create(:image, viewable: variant)
-      expect(product.reload.thumbnail_id).to eq(image.id)
+      expect(product.reload.primary_media_id).to eq(image.id)
     end
 
-    it 'updates thumbnail_id when first image is destroyed' do
+    it 'updates primary_media_id when first image is destroyed' do
       image1 = create(:image, viewable: variant, position: 1)
       image2 = create(:image, viewable: variant, position: 2)
-      expect(variant.reload.thumbnail_id).to eq(image1.id)
+      expect(variant.reload.primary_media_id).to eq(image1.id)
 
       image1.destroy
-      expect(variant.reload.thumbnail_id).to eq(image2.id)
+      expect(variant.reload.primary_media_id).to eq(image2.id)
     end
 
-    it 'sets thumbnail_id to nil when last image is destroyed' do
+    it 'sets primary_media_id to nil when last image is destroyed' do
       image = create(:image, viewable: variant)
-      expect(variant.reload.thumbnail_id).to eq(image.id)
+      expect(variant.reload.primary_media_id).to eq(image.id)
 
       image.destroy
-      expect(variant.reload.thumbnail_id).to be_nil
+      expect(variant.reload.primary_media_id).to be_nil
     end
 
-    it 'updates thumbnail_id when image position changes' do
+    it 'updates primary_media_id when image position changes' do
       image1 = create(:image, viewable: variant, position: 1)
       image2 = create(:image, viewable: variant, position: 2)
-      expect(variant.reload.thumbnail_id).to eq(image1.id)
+      expect(variant.reload.primary_media_id).to eq(image1.id)
 
       image2.update!(position: 0)
-      expect(variant.reload.thumbnail_id).to eq(image2.id)
+      expect(variant.reload.primary_media_id).to eq(image2.id)
     end
   end
 end

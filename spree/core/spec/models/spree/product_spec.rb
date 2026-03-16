@@ -791,14 +791,14 @@ describe Spree::Product, type: :model do
     end
   end
 
-  describe '#default_image' do
+  describe '#primary_media' do
     let(:product) { create(:product, stores: [store]) }
 
     context 'when master has images' do
       let!(:image) { create(:image, viewable: product.master) }
 
       it 'returns the master image' do
-        expect(product.reload.default_image).to eq(image)
+        expect(product.reload.primary_media).to eq(image)
       end
 
       context 'with variants that also have images' do
@@ -806,7 +806,7 @@ describe Spree::Product, type: :model do
         let!(:variant_image) { create(:image, viewable: variant) }
 
         it 'returns the master image (master takes priority)' do
-          expect(product.reload.default_image).to eq(image)
+          expect(product.reload.primary_media).to eq(image)
         end
       end
     end
@@ -816,13 +816,13 @@ describe Spree::Product, type: :model do
       let!(:variant_image) { create(:image, viewable: variant) }
 
       it 'returns the variant image' do
-        expect(product.reload.default_image).to eq(variant_image)
+        expect(product.reload.primary_media).to eq(variant_image)
       end
     end
 
     context 'when no variants have images' do
       it 'returns nil' do
-        expect(product.default_image).to be_nil
+        expect(product.primary_media).to be_nil
       end
     end
   end
@@ -1033,7 +1033,7 @@ describe Spree::Product, type: :model do
     it 'returns correct images with storefront includes' do
       loaded_product = Spree::Product.includes(*storefront_includes).find(product.id)
 
-      expect(loaded_product.default_image).to eq(image)
+      expect(loaded_product.primary_media).to eq(image)
       expect(loaded_product.variant_for_images).to eq(variant)
       expect(loaded_product.has_images?).to be true
     end
@@ -1051,7 +1051,7 @@ describe Spree::Product, type: :model do
 
         expect(loaded_product.default_variant).to eq(variant2)
         expect(loaded_product.variant_for_images).to eq(variant)
-        expect(loaded_product.default_image).to eq(image)
+        expect(loaded_product.primary_media).to eq(image)
       end
     end
   end

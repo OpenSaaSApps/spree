@@ -86,15 +86,15 @@ RSpec.describe 'Product media system', type: :model do
     describe 'thumbnail updates with product viewable' do
       let(:product) { create(:product) }
 
-      it 'sets product thumbnail_id when image is created' do
+      it 'sets product primary_media_id when image is created' do
         image = create(:image, viewable: product)
-        expect(product.reload.thumbnail_id).to eq(image.id)
+        expect(product.reload.primary_media_id).to eq(image.id)
       end
 
-      it 'clears product thumbnail_id when last image is destroyed' do
+      it 'clears product primary_media_id when last image is destroyed' do
         image = create(:image, viewable: product)
         image.destroy
-        expect(product.reload.thumbnail_id).to be_nil
+        expect(product.reload.primary_media_id).to be_nil
       end
     end
   end
@@ -136,13 +136,13 @@ RSpec.describe 'Product media system', type: :model do
     describe '#update_thumbnail!' do
       it 'uses product media first' do
         product_image = create(:image, viewable: product)
-        expect(product.reload.thumbnail_id).to eq(product_image.id)
+        expect(product.reload.primary_media_id).to eq(product_image.id)
       end
 
       it 'falls back to variant images when no product media' do
         variant_image = create(:image, viewable: product.master)
         product.update_thumbnail!
-        expect(product.reload.thumbnail_id).to eq(variant_image.id)
+        expect(product.reload.primary_media_id).to eq(variant_image.id)
       end
     end
   end

@@ -49,7 +49,7 @@ module Spree
     has_many :option_values, through: :option_value_variants, dependent: :destroy, class_name: 'Spree::OptionValue'
 
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: 'Spree::Asset'
-    belongs_to :thumbnail, class_name: 'Spree::Asset', optional: true
+    belongs_to :primary_media, class_name: 'Spree::Asset', optional: true, foreign_key: :primary_media_id
 
     has_many :prices,
              class_name: 'Spree::Price',
@@ -297,17 +297,17 @@ module Spree
 
     alias has_images? has_media?
 
-    # Returns default Image for Variant.
-    # @return [Spree::Asset, nil]
+    # @deprecated Use #primary_media instead.
     def default_image
-      thumbnail
+      Spree::Deprecation.warn('Spree::Variant#default_image is deprecated and will be removed in Spree 6.0. Please use Spree::Variant#primary_media instead.')
+      primary_media
     end
 
-    # Updates the thumbnail_id to the first image by position.
-    # Called when images are added, removed, or reordered.
+    # Updates primary_media_id to the first media item by position.
+    # Called when media is added, removed, or reordered.
     def update_thumbnail!
-      first_image = images.order(:position).first
-      update_column(:thumbnail_id, first_image&.id)
+      first_media = images.order(:position).first
+      update_column(:primary_media_id, first_media&.id)
     end
 
     # Returns first Image for Variant.

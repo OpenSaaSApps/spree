@@ -27,6 +27,7 @@ export const ProductSchema = z.object({
   tags: z.array(z.string()),
   price: PriceSchema,
   original_price: PriceSchema.nullable(),
+  primary_media: MediaSchema.optional(),
   media: z.array(MediaSchema).optional(),
   variants: z.array(VariantSchema).optional(),
   default_variant: VariantSchema.optional(),

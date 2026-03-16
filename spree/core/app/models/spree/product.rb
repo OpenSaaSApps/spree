@@ -119,7 +119,7 @@ module Spree
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
     has_many :variant_images_without_master, -> { order(:position) }, source: :images, through: :variants
 
-    belongs_to :thumbnail, class_name: 'Spree::Asset', optional: true
+    belongs_to :primary_media, class_name: 'Spree::Asset', optional: true, foreign_key: :primary_media_id
 
     has_many :option_value_variants, class_name: 'Spree::OptionValueVariant', through: :variants
     has_many :option_values, class_name: 'Spree::OptionValue', through: :variants
@@ -365,41 +365,41 @@ module Spree
       @variant_for_images ||= find_variant_for_images
     end
 
-    # Returns default Image for Product.
-    # Uses cached thumbnail_id which is updated when images are added/removed/reordered.
-    # @return [Spree::Asset, nil]
+    # @deprecated Use #primary_media instead.
     def default_image
-      thumbnail
+      Spree::Deprecation.warn('Spree::Product#default_image is deprecated and will be removed in Spree 6.0. Please use Spree::Product#primary_media instead.')
+      primary_media
     end
 
-    # Backward compatibility for Spree 5.2 and earlier.
-    # @deprecated Use Spree::Product#default_image instead.
+    # @deprecated Use #primary_media instead.
     def featured_image
-      Spree::Deprecation.warn('Spree::Product#featured_image is deprecated and will be removed in Spree 5.5. Please use Spree::Product#default_image instead.')
-
-      default_image
+      Spree::Deprecation.warn('Spree::Product#featured_image is deprecated and will be removed in Spree 6.0. Please use Spree::Product#primary_media instead.')
+      primary_media
     end
 
-    # Returns secondary Image for Product (for hover effects).
+    # @deprecated Use #primary_media instead.
+    def primary_image
+      Spree::Deprecation.warn('Spree::Product#primary_image is deprecated and will be removed in Spree 6.0. Please use Spree::Product#primary_media instead.')
+      primary_media
+    end
+
+    # Returns secondary media for Product (for hover effects).
     # @return [Spree::Asset, nil]
     def secondary_image
       variant_for_images&.secondary_image
     end
-
-    # Alias for default_image for consistency.
-    alias primary_image default_image
 
     # @deprecated Use media_count instead
     def image_count
       media_count
     end
 
-    # Updates the thumbnail_id to the first media item.
+    # Updates primary_media_id to the first media item.
     # Checks product-level media first, then falls back to variant images.
     # Called when media is added, removed, or reordered.
     def update_thumbnail!
       first_media = media.order(:position).first || variant_images.order(:position).first
-      update_column(:thumbnail_id, first_media&.id)
+      update_column(:primary_media_id, first_media&.id)
     end
 
     # Finds first variant with media using preloaded data when available.

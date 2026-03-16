@@ -6,7 +6,7 @@ module Spree
       class VariantSerializer < BaseSerializer
         typelize product_id: :string, sku: [:string, nullable: true],
                  is_master: :boolean, options_text: :string, track_inventory: :boolean, media_count: :number,
-                 thumbnail: [:string, nullable: true],
+                 thumbnail_url: [:string, nullable: true],
                  purchasable: :boolean, in_stock: :boolean, backorderable: :boolean,
                  weight: [:number, nullable: true], height: [:number, nullable: true], width: [:number, nullable: true], depth: [:number, nullable: true],
                  price: 'Price',
@@ -19,9 +19,9 @@ module Spree
         attributes :sku, :is_master, :options_text, :track_inventory, :media_count,
                    created_at: :iso8601, updated_at: :iso8601
 
-        # Main variant image URL for listings (cached thumbnail)
-        attribute :thumbnail do |variant|
-          image_url_for(variant.thumbnail)
+        # Main variant image URL for listings (cached primary_media)
+        attribute :thumbnail_url do |variant|
+          image_url_for(variant.primary_media)
         end
 
         attribute :purchasable do |variant|
@@ -70,6 +70,10 @@ module Spree
         end
 
         # Conditional associations
+        one :primary_media,
+            resource: Spree.api.media_serializer,
+            if: proc { expand?('primary_media') }
+
         many :gallery_media,
              key: :media,
              resource: Spree.api.media_serializer,

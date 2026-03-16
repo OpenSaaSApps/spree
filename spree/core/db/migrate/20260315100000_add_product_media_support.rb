@@ -9,6 +9,8 @@ class AddProductMediaSupport < ActiveRecord::Migration[7.2]
 
     rename_column :spree_variants, :image_count, :media_count
     rename_column :spree_products, :total_image_count, :media_count
+    rename_column :spree_variants, :thumbnail_id, :primary_media_id
+    rename_column :spree_products, :thumbnail_id, :primary_media_id
 
     reversible do |dir|
       dir.up do

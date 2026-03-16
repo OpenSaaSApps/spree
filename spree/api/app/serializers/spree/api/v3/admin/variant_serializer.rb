@@ -20,6 +20,10 @@ module Spree
           end
 
           # Override inherited associations to use admin serializers
+          one :primary_media,
+              resource: Spree.api.admin_media_serializer,
+              if: proc { expand?('primary_media') }
+
           many :gallery_media,
                key: :media,
                resource: Spree.api.admin_media_serializer,

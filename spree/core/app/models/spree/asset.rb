@@ -25,12 +25,14 @@ module Spree
     EXTERNAL_URL_METAFIELD_KEY = 'external.url'
     MEDIA_TYPES = %w[image video external_video].freeze
 
+    after_initialize { self.media_type ||= 'image' }
+
     belongs_to :viewable, polymorphic: true, touch: true
     acts_as_list scope: [:viewable_id, :viewable_type]
 
     delegate :key, :attached?, :variant, :variable?, :blob, :filename, :variation, to: :attachment
 
-    validates :media_type, inclusion: { in: MEDIA_TYPES }, allow_nil: true
+    validates :media_type, inclusion: { in: MEDIA_TYPES }
     validates :attachment, attached: true, content_type: Rails.application.config.active_storage.web_image_content_types,
               if: -> { media_type == 'image' }
     validates :external_video_url, presence: true, if: -> { media_type.in?(%w[video external_video]) }

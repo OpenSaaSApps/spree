@@ -4,7 +4,7 @@ module Spree
       class MediaSerializer < BaseSerializer
         typelize position: :number, alt: [:string, nullable: true],
                  product_id: [:string, nullable: true],
-                 media_type: [:string, nullable: true],
+                 media_type: :string,
                  focal_point_x: [:number, nullable: true],
                  focal_point_y: [:number, nullable: true],
                  external_video_url: [:string, nullable: true],

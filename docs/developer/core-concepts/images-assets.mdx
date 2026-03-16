@@ -59,33 +59,33 @@ curl 'https://api.mystore.com/api/v3/store/products?limit=12' \
 </CodeGroup>
 
 <Warning>
-Avoid using `?expand=images` on listing pages. This loads **all** images for every product in the response. Use `thumbnail_url` instead and only expand full images on product detail pages.
+Avoid using `?expand=media` on listing pages. This loads **all** images for every product in the response. Use `thumbnail_url` instead and only expand full media on product detail pages.
 </Warning>
 
 ### Full Images (On Demand)
 
-On the product detail page, expand `images` and `variants` to get the full set of images with all named variant URLs:
+On the product detail page, expand `media` and `variants` to get the full set of images with all named variant URLs:
 
 <CodeGroup>
 
 ```typescript SDK
 const product = await client.products.get('spree-tote', {
-  expand: ['images', 'variants'],
+  expand: ['media', 'variants'],
 })
 
 // Product-level images (from master variant)
-product.images // [{ url, mini_url, small_url, medium_url, large_url, xlarge_url, alt, position }, ...]
+product.media // [{ url, mini_url, small_url, medium_url, large_url, xlarge_url, alt, position }, ...]
 
 // Each variant has its own thumbnail and image_count
 product.variants?.forEach(variant => {
   variant.thumbnail    // "https://cdn.../tote-red.webp" — always available
   variant.image_count  // 3 — quick check without loading images
-  variant.images       // full image array (only with ?expand=images)
+  variant.media        // full image array (only with ?expand=media)
 })
 ```
 
 ```bash cURL
-curl 'https://api.mystore.com/api/v3/store/products/spree-tote?expand=images,variants' \
+curl 'https://api.mystore.com/api/v3/store/products/spree-tote?expand=media,variants' \
   -H 'Authorization: Bearer spree_pk_xxx'
 ```
 
@@ -114,7 +114,7 @@ curl 'https://api.mystore.com/api/v3/store/products/spree-tote?expand=images,var
 | `thumbnail_url` | Product | Yes | URL to the product's first image |
 | `thumbnail` | Variant | Yes | URL to the variant's first image |
 | `image_count` | Variant | Yes | Number of images (no extra query) |
-| `images` | Product, Variant | No | Full image array (requires `?expand=images`) |
+| `media` | Product, Variant | No | Full image array (requires `?expand=media`) |
 
 ## Image Processing
 

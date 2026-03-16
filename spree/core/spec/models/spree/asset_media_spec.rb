@@ -55,10 +55,14 @@ RSpec.describe 'Product media system', type: :model do
         expect(asset.errors[:media_type]).to be_present
       end
 
-      it 'allows nil media_type' do
-        asset = build(:asset, media_type: nil)
-        asset.valid?
-        expect(asset.errors[:media_type]).to be_empty
+      it 'defaults to image' do
+        asset = Spree::Asset.new
+        expect(asset.media_type).to eq('image')
+      end
+
+      it 'defaults to image for Spree::Image subclass' do
+        image = Spree::Image.new
+        expect(image.media_type).to eq('image')
       end
     end
 

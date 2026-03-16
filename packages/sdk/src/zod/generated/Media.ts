@@ -6,7 +6,7 @@ export const MediaSchema = z.object({
   product_id: z.string().nullable(),
   position: z.number(),
   alt: z.string().nullable(),
-  media_type: z.string().nullable(),
+  media_type: z.string(),
   focal_point_x: z.number().nullable(),
   focal_point_y: z.number().nullable(),
   external_video_url: z.string().nullable(),

@@ -16,17 +16,6 @@
   - `Shipment` → `Fulfillment`
   - `ShippingRate` → `DeliveryRate`
 
-### Patch Changes
-
-- Allow `getCart()` to accept an optional `explicitCartId` parameter. When provided, fetches that specific cart directly by ID instead of reading from cookies. Needed for the confirm-payment flow where the cart ID is known from the URL but cookies may have been cleared.
-
-## 1.0.0
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @spree/sdk@0.12.0
-
 ## 0.11.0
 
 ### Minor Changes

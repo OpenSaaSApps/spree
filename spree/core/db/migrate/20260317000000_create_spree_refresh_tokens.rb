@@ -11,5 +11,6 @@ class CreateSpreeRefreshTokens < ActiveRecord::Migration[7.2]
 
     add_index :spree_refresh_tokens, :token, unique: true
     add_index :spree_refresh_tokens, :expires_at
+    add_index :spree_refresh_tokens, [:user_type, :user_id], name: 'idx_refresh_tokens_user'
   end
 end

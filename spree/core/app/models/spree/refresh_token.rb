@@ -52,6 +52,8 @@ module Spree
     end
 
     def self.default_expiry
+      Spree::Api::Config[:refresh_token_expiry].seconds
+    rescue StandardError
       30.days
     end
   end

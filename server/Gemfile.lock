@@ -8,6 +8,47 @@ GIT
       stripe (>= 10.1, < 19)
       stripe_event (~> 2.14)
 
+PATH
+  remote: ../spree/admin
+  specs:
+    spree_admin (5.4.0.beta9)
+      active_link_to
+      breadcrumbs_on_rails (~> 4.1)
+      chartkick (~> 5.0)
+      groupdate (~> 6.2)
+      hightop (~> 0.3)
+      importmap-rails
+      inline_svg (~> 1.10)
+      local_time (~> 3.0)
+      mapkick-rb (~> 0.1)
+      pagy (~> 43.0)
+      ruby-oembed (~> 0.18)
+      spree (>= 5.4.0.beta9)
+      stimulus-rails
+      tailwindcss-rails (>= 4.0)
+      tailwindcss-ruby (>= 4.0)
+      tinymce-rails (~> 6.8.5)
+      turbo-rails
+
+PATH
+  remote: ../spree/emails
+  specs:
+    spree_emails (5.4.0.beta9)
+      spree (>= 5.4.0.beta9)
+
+PATH
+  remote: ../spree
+  specs:
+    spree (5.4.0.beta9)
+      spree_api (= 5.4.0.beta9)
+      spree_core (= 5.4.0.beta9)
+    spree_api (5.4.0.beta9)
+      alba (~> 3.0)
+      oj (~> 3.16)
+      pagy (~> 43.0)
+      spree_core (= 5.4.0.beta9)
+      typelizer (~> 0.10.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -640,33 +681,6 @@ GEM
       simplecov (~> 0.19)
     simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
-    spree (5.4.0.beta9)
-      spree_api (= 5.4.0.beta9)
-      spree_core (= 5.4.0.beta9)
-    spree_admin (5.4.0.beta9)
-      active_link_to
-      breadcrumbs_on_rails (~> 4.1)
-      chartkick (~> 5.0)
-      groupdate (~> 6.2)
-      hightop (~> 0.3)
-      importmap-rails
-      inline_svg (~> 1.10)
-      local_time (~> 3.0)
-      mapkick-rb (~> 0.1)
-      pagy (~> 43.0)
-      ruby-oembed (~> 0.18)
-      spree (>= 5.4.0.beta9)
-      stimulus-rails
-      tailwindcss-rails (>= 4.0)
-      tailwindcss-ruby (>= 4.0)
-      tinymce-rails (~> 6.8.5)
-      turbo-rails
-    spree_api (5.4.0.beta9)
-      alba (~> 3.0)
-      oj (~> 3.16)
-      pagy (~> 43.0)
-      spree_core (= 5.4.0.beta9)
-      typelizer (~> 0.10.0)
     spree_core (5.4.0.beta9)
       active_storage_validations (= 1.3.0)
       acts-as-taggable-on
@@ -732,8 +746,6 @@ GEM
       spree (>= 5.4.0.alpha)
       timecop
       webdrivers
-    spree_emails (5.4.0.beta9)
-      spree (>= 5.4.0.beta9)
     spree_extension (1.0.2)
       thor (~> 1.0)
     spree_i18n (5.3.2)
@@ -859,10 +871,10 @@ DEPENDENCIES
   sentry-sidekiq
   sidekiq
   simplecov-cobertura
-  spree (>= 5.4.0.beta8)
-  spree_admin (>= 5.4.0.beta8)
+  spree!
+  spree_admin!
   spree_dev_tools (>= 0.6.0.rc1)
-  spree_emails (>= 5.4.0.beta8)
+  spree_emails!
   spree_i18n
   spree_stripe!
   stimulus-rails
@@ -1113,12 +1125,12 @@ CHECKSUMS
   simplecov-cobertura (3.1.0) sha256=6d7f38aa32c965ca2174b2e5bd88cb17138eaf629518854976ac50e628925dc5
   simplecov-html (0.13.2) sha256=bd0b8e54e7c2d7685927e8d6286466359b6f16b18cb0df47b508e8d73c777246
   simplecov_json_formatter (0.1.4) sha256=529418fbe8de1713ac2b2d612aa3daa56d316975d307244399fa4838c601b428
-  spree (5.4.0.beta9) sha256=7e1033d2d428c289cbdeaa339ed4fb0f31e3c5ad1101393bada8a937ad8c08e0
-  spree_admin (5.4.0.beta9) sha256=b72febfbbe0ce0295a94e110e7d3c8e045472691c1693279ee076ce7f33f776f
-  spree_api (5.4.0.beta9) sha256=1f40f2dc6ddb8740bb875b249baac716c42094c7b2276535ad71b1221f155729
+  spree (5.4.0.beta9)
+  spree_admin (5.4.0.beta9)
+  spree_api (5.4.0.beta9)
   spree_core (5.4.0.beta9) sha256=7466db2249cedbdde08f6dcca93fea0fe75638de2f2374db9858337b19454d4f
   spree_dev_tools (0.6.0.rc1) sha256=3e2c3fe15f5c1ab2859c4047a1a40b55b22c998570afc6d0d03692bcdc64209f
-  spree_emails (5.4.0.beta9) sha256=13a8d60281100c5ea1095258205e75d89b81698c6252a80cc735bc33846503d4
+  spree_emails (5.4.0.beta9)
   spree_extension (1.0.2) sha256=71725dafe45319a2be1bd2b564a416afe8029af8e18ac703bdb835e09553e1df
   spree_i18n (5.3.2) sha256=03b805235ca156644951f6bc3d07cbe43d0aa01134c4a27e3f3304011956f79b
   spree_stripe (1.6.0.beta)

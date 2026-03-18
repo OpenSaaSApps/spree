@@ -7,6 +7,7 @@ export function rootPackageJsonContent(name: string): string {
       stop: 'spree stop',
       down: 'docker compose down',
       update: 'spree update',
+      eject: 'spree eject',
       logs: 'spree logs',
       'logs:worker': 'spree logs worker',
       seed: 'spree seed',

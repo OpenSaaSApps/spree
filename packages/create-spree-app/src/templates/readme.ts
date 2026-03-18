@@ -1,7 +1,7 @@
 import { STOREFRONT_PORT, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD } from '../constants.js'
 
-export function readmeContent(name: string, hasStorefront: boolean, port: number): string {
-  let content = `# ${name}
+export function readmeContent(name: string, port: number): string {
+  return `# ${name}
 
 A [Spree Commerce](https://spreecommerce.org) project.
 
@@ -25,10 +25,7 @@ Wait for the services to be healthy, then open:
   - Password: \`${DEFAULT_ADMIN_PASSWORD}\`
 - **Store API:** http://localhost:${port}/api/v3/store
 - **Mailpit (email inbox):** http://localhost:8025
-`
 
-  if (hasStorefront) {
-    content += `
 ### Start the storefront
 
 \`\`\`bash
@@ -38,10 +35,23 @@ npm run dev
 \`\`\`
 
 Open http://localhost:${STOREFRONT_PORT}
-`
-  }
 
-  content += `
+## Customizing the Backend
+
+The \`backend/\` directory contains a full Rails application with Spree installed. By default, the project uses a prebuilt Docker image. To switch to building from your local backend:
+
+\`\`\`bash
+npx spree eject
+\`\`\`
+
+This rebuilds the Docker image from \`backend/\` and restarts services. You can then:
+
+- **Add gems** to \`backend/Gemfile\`
+- **Override models** with decorators in \`backend/app/models/\`
+- **Add controllers** in \`backend/app/controllers/\`
+- **Configure Spree** in \`backend/config/initializers/spree.rb\`
+- **Add migrations** with \`cd backend && bin/rails generate migration\`
+
 ## Spree CLI
 
 This project uses [\`@spree/cli\`](https://www.npmjs.com/package/@spree/cli) to manage the backend.
@@ -53,6 +63,7 @@ This project uses [\`@spree/cli\`](https://www.npmjs.com/package/@spree/cli) to 
 | \`spree dev\` | Start backend services and stream logs |
 | \`spree stop\` | Stop backend services |
 | \`spree update\` | Pull latest Spree image and restart (runs migrations automatically) |
+| \`spree eject\` | Switch from prebuilt image to building from \`backend/\` |
 | \`spree logs\` | View web server logs |
 | \`spree logs worker\` | View background jobs logs |
 | \`spree console\` | Open Rails console |
@@ -73,30 +84,10 @@ This project uses [\`@spree/cli\`](https://www.npmjs.com/package/@spree/cli) to 
 | \`spree api-key list\` | List all API keys |
 | \`spree api-key revoke <token>\` | Revoke an API key |
 
-### Other
-
-| Command | Description |
-|---------|-------------|
-| \`docker compose down\` | Stop and remove all containers and volumes |
-
-## Updating Spree
-
-\`\`\`bash
-spree update
-\`\`\`
-
-To pin a specific version, edit \`SPREE_VERSION_TAG\` in \`.env\`:
-
-\`\`\`
-SPREE_VERSION_TAG=5.4
-\`\`\`
-
 ## Learn More
 
 - [Spree Documentation](https://docs.spreecommerce.org)
 - [Store API Reference](https://docs.spreecommerce.org/api-reference/store)
 - [Spree GitHub](https://github.com/spree/spree)
 `
-
-  return content
 }

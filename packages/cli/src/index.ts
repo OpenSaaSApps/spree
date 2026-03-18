@@ -11,6 +11,7 @@ import { registerApiKeyCommand } from './commands/api-key.js'
 import { registerSeedCommand } from './commands/seed.js'
 import { registerOpenCommand } from './commands/open.js'
 import { registerSampleDataCommand } from './commands/sample-data.js'
+import { registerEjectCommand } from './commands/eject.js'
 
 const program = new Command()
   .name('spree')
@@ -28,6 +29,7 @@ registerApiKeyCommand(program)
 registerOpenCommand(program)
 registerSeedCommand(program)
 registerSampleDataCommand(program)
+registerEjectCommand(program)
 
 program.exitOverride()
 

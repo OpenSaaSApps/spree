@@ -12,7 +12,6 @@ const program = new Command()
   .name('create-spree-app')
   .description('Create a new Spree Commerce project')
   .argument('[directory]', 'project directory')
-  .option('--backend-only', 'skip storefront setup')
   .option('--no-sample-data', 'skip loading sample data')
   .option('--no-start', 'do not start Docker services')
   .option('--port <number>', 'port for the Spree backend', String(DEFAULT_SPREE_PORT))
@@ -30,7 +29,6 @@ const program = new Command()
     try {
       const options = await runPrompts({
         directory,
-        backendOnly: flags.backendOnly as boolean | undefined,
         noSampleData: flags.sampleData === false ? true : undefined,
         noStart: flags.start === false ? true : undefined,
         packageManager,

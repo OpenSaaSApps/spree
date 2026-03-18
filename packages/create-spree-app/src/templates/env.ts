@@ -1,6 +1,7 @@
 export function envContent(secretKeyBase: string, port: number): string {
   return `SECRET_KEY_BASE=${secretKeyBase}
 SPREE_PORT=${port}
+SPREE_VERSION_TAG=latest
 `
 }
 

@@ -25,18 +25,14 @@ export function registerEjectCommand(program: Command) {
         process.exit(1)
       }
 
-      const s = p.spinner()
-
       // Replace docker-compose.yml with the dev version
       fs.copyFileSync(devCompose, path.join(ctx.projectDir, 'docker-compose.yml'))
 
-      s.start('Building backend from local source...')
-      await dockerCompose(['build'], ctx.projectDir)
-      s.stop('Backend image built.')
+      console.log(`\n${pc.bold('Building backend from local source...')}\n`)
+      await dockerCompose(['build'], ctx.projectDir, { stdio: 'inherit' })
 
-      s.start('Restarting services...')
-      await dockerCompose(['up', '-d'], ctx.projectDir)
-      s.stop('Services restarted.')
+      console.log(`\n${pc.bold('Restarting services...')}\n`)
+      await dockerCompose(['up', '-d'], ctx.projectDir, { stdio: 'inherit' })
 
       p.note(
         [

@@ -16,7 +16,7 @@ import { registerEjectCommand } from './commands/eject.js'
 const program = new Command()
   .name('spree')
   .description('CLI for managing Spree Commerce projects')
-  .version('2.0.0-beta.3')
+  .version('2.0.0-beta.6')
 
 registerInitCommand(program)
 registerDevCommand(program)

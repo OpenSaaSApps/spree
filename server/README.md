@@ -1,140 +1,95 @@
-# Spree Server
+# Spree Starter
 
-A Rails application that mounts the Spree gems (core, api, admin, emails) from the `spree/` directory and serves the API and admin interface.
+A Rails application pre-configured with [Spree Commerce](https://spreecommerce.org). Use it as a starting point for your own store, or as the backend for a headless storefront.
 
-## Structure
+## Quick Start
 
-```
-server/
-├── Gemfile              # References gems via path: ../spree
-├── Dockerfile           # Multi-stage build for Docker
-├── config/
-└── db/
-```
-
-## Setup
-
-### Local Development (Ruby developers)
-
-PostgreSQL and Redis must be running before you start. If you have them installed locally, make sure they're running. Otherwise you can start them with Docker:
+The fastest way to get started is with [create-spree-app](https://github.com/spree/spree/packages/create-spree-app):
 
 ```bash
-docker run -d --name spree-postgres -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres:17-alpine
-docker run -d --name spree-redis -p 6379:6379 redis:7-alpine
+npx create-spree-app my-store
 ```
 
-Then run the setup script:
+This scaffolds a full project with Docker, a Next.js storefront, and this backend — all configured and ready to run.
+
+## Manual Setup
+
+### Prerequisites
+
+- Ruby (see `.ruby-version`)
+- PostgreSQL
+- Redis
+
+### Install & Run
+
+`bin/setup` will use [Mise](https://mise.jdx.dev/) to install all dependencies.
 
 ```bash
-cd server
 bin/setup
 bin/dev
 ```
 
-`bin/setup` handles everything: installs Ruby (via [mise](https://mise.jdx.dev) if available, otherwise uses your system Ruby), system packages (libpq, vips), gems, and prepares the database.
+The app starts at [http://localhost:3000](http://localhost:3000).
 
-By default the app connects to PostgreSQL at `localhost:5432` as user `postgres` with no password. Override with environment variables if needed:
+- **Admin:** [http://localhost:3000/admin](http://localhost:3000/admin)
+- **API:** [http://localhost:3000/api/v3/store/products](http://localhost:3000/api/v3/store/products)
+- **Health check:** [http://localhost:3000/up](http://localhost:3000/up)
 
-```bash
-DATABASE_HOST=127.0.0.1 DATABASE_PORT=5433 DATABASE_USERNAME=myuser bin/setup
-```
+Default admin credentials are created during `db:seed`.
 
-Use `bin/setup --reset` to drop and recreate the database.
+## Docker
 
-The app starts at `http://localhost:3000`.
-
-**Emails in local dev:** By default emails are printed to the Rails log. To catch and preview emails with a web UI, run [Mailpit](https://mailpit.axllent.org) and set `SMTP_HOST`:
+Build and run with Docker:
 
 ```bash
-docker run -d --name mailpit -p 8025:8025 -p 1025:1025 axllent/mailpit
-SMTP_HOST=localhost bin/dev
+docker build -t my-spree .
+docker run -p 3000:3000 \
+  -e DATABASE_URL=postgres://user:pass@host:5432/spree \
+  -e REDIS_URL=redis://localhost:6379/0 \
+  -e SECRET_KEY_BASE=$(bin/rails secret) \
+  my-spree
 ```
 
-Then open `http://localhost:8025` to see all outgoing emails.
-
-### Docker (TypeScript / frontend developers)
-
-From the **repository root**:
-
-```bash
-docker compose up -d
-```
-
-This boots PostgreSQL, Redis, Mailpit, and the backend. The API is available at `http://localhost:3000`. The database is automatically created and migrated on first boot.
-
-All outgoing emails are caught by Mailpit and viewable at `http://localhost:8025`.
-
-To rebuild after changes:
-
-```bash
-docker compose build spree
-docker compose up -d
-```
-
-To reset the database:
-
-```bash
-docker compose down -v
-docker compose up -d
-```
+See [Docker deployment docs](https://docs.spreecommerce.org/developer/deployment/docker) for a full `docker-compose.yml` example.
 
 ## Environment Variables
 
-### Database
-
-| Variable | Default | Description |
-|---|---|---|
-| `DATABASE_HOST` | `localhost` | PostgreSQL host |
-| `DATABASE_PORT` | `5432` | PostgreSQL port |
-| `DATABASE_USERNAME` | `postgres` | PostgreSQL user |
-
-### Production
+Copy `.env.example` to `.env` and configure:
 
 | Variable | Required | Description |
 |---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection URL |
-| `REDIS_URL` | Yes | Redis connection URL (caching, background jobs, Action Cable) |
-| `SECRET_KEY_BASE` | Yes | Secret key for session encryption |
+| `DATABASE_URL` | Yes (production) | PostgreSQL connection URL |
+| `REDIS_URL` | Yes (production) | Redis URL for jobs, caching, and Action Cable |
+| `SECRET_KEY_BASE` | Yes (production) | Generate with `bin/rails secret` |
+| `PORT` | No | Web server port (default: 3000) |
 
-### Email (SMTP)
+See [Environment Variables docs](https://docs.spreecommerce.org/developer/deployment/environment_variables) for the full list (SMTP, S3, Sentry, SSL, etc.).
 
-Spree works with any SMTP provider (Resend, Postmark, Mailgun, SendGrid, Amazon SES, etc.).
+## Customization
 
-| Variable | Default | Description |
-|---|---|---|
-| `SMTP_HOST` | — | SMTP server address |
-| `SMTP_PORT` | `587` | SMTP server port |
-| `SMTP_USERNAME` | — | SMTP auth username |
-| `SMTP_PASSWORD` | — | SMTP auth password |
-| `SMTP_FROM_ADDRESS` | — | Default "from" email address |
-| `RAILS_HOST` | `example.com` | Host used in mailer URLs |
+This is a standard Rails application. Customize it however you need:
 
-### File Storage (S3 / Cloudflare R2)
+- **Add gems** to `Gemfile`
+- **Override models** with decorators in `app/models/`
+- **Add controllers** in `app/controllers/`
+- **Configure Spree** in `config/initializers/spree.rb`
+- **Add migrations** with `bin/rails generate migration`
 
-By default, uploaded files are stored on the local disk. Set the appropriate environment variables to use S3 or Cloudflare R2 instead. When both are configured, S3 takes priority.
+See the [Spree Customization Guide](https://docs.spreecommerce.org/developer/customization) for details.
 
-**AWS S3:**
+## Spree Core Development
 
-| Variable | Default | Description |
-|---|---|---|
-| `AWS_ACCESS_KEY_ID` | — | AWS access key |
-| `AWS_SECRET_ACCESS_KEY` | — | AWS secret key |
-| `AWS_REGION` | — | AWS region (e.g. `us-east-1`) |
-| `AWS_BUCKET` | `spree-<env>` | S3 bucket name |
+To develop against a local checkout of the Spree gems:
 
-**Cloudflare R2:**
+```bash
+# Set SPREE_PATH to your local spree monorepo
+echo 'SPREE_PATH=../spree' > .env
+bundle install
+bin/dev
+```
 
-| Variable | Default | Description |
-|---|---|---|
-| `CLOUDFLARE_ACCESS_KEY_ID` | — | R2 access key |
-| `CLOUDFLARE_SECRET_ACCESS_KEY` | — | R2 secret key |
-| `CLOUDFLARE_ENDPOINT` | — | R2 endpoint URL (e.g. `https://<account_id>.r2.cloudflarestorage.com`) |
-| `CLOUDFLARE_BUCKET` | `spree-<env>` | R2 bucket name |
+The `Gemfile` automatically uses local gems when `SPREE_PATH` is set.
 
-### Error Monitoring (Sentry)
+## License
 
-| Variable | Default | Description |
-|---|---|---|
-| `SENTRY_DSN` | — | Sentry DSN to enable error and performance monitoring |
-| `SENTRY_REPORT_ON_DEVELOPMENT` | — | Set to any value to also report errors in development |
-| `RENDER_GIT_COMMIT` | — | Git SHA used as Sentry release identifier |
+[MIT](LICENSE.md)

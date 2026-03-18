@@ -1,11 +1,9 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=4.0.1
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
-# Rails app lives here
 WORKDIR /rails
 
 # Install base packages
@@ -14,7 +12,10 @@ RUN apt-get update -qq && \
   ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-ENV BUNDLE_PATH="/usr/local/bundle" \
+ENV RAILS_ENV="production" \
+  BUNDLE_DEPLOYMENT="1" \
+  BUNDLE_PATH="/usr/local/bundle" \
+  BUNDLE_WITHOUT="development:test" \
   LD_PRELOAD="/usr/local/lib/libjemalloc.so"
 
 # Throw-away build stage to reduce size of final image
@@ -25,21 +26,18 @@ RUN apt-get update -qq && \
   apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Copy Spree gems (referenced by Gemfile via ../spree)
-COPY spree/ /spree/
-
 # Install application gems
-COPY server/vendor/ ./vendor/
-COPY server/Gemfile.common server/Gemfile server/Gemfile.lock ./
-
+COPY .ruby-version Gemfile Gemfile.lock ./
 RUN bundle install && \
-  rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
+  rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+  bundle exec bootsnap precompile --gemfile
 
 # Copy application code
-COPY server/ .
+COPY . .
 
-# Precompile assets
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompile bootsnap code for faster boot times and assets
+RUN bundle exec bootsnap precompile app/ lib/ && \
+  SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # Final stage for app image
 FROM base
@@ -52,7 +50,6 @@ USER 1000:1000
 # Copy built artifacts: gems, application
 COPY --chown=rails:rails --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --chown=rails:rails --from=build /rails /rails
-COPY --chown=rails:rails --from=build /spree /spree
 
 # Entrypoint prepares the database.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]

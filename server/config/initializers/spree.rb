@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Configure Spree Preferences
 #
 # Note: Initializing preferences available within the Admin will overwrite any changes that were made through the user interface when you restart.
@@ -16,29 +18,7 @@ Spree.config do |config|
   # Example:
   # Uncomment to stop tracking inventory levels in the application
   # config.track_inventory_levels = false
-
-  # Silence engine migration warnings - migrations live in engines and are
-  # copied to db/migrate on demand, not checked into the backend app
-  config.disable_migration_check = true
 end
-
-# Background job queue names
-# Spree.queues.default = :default
-# Spree.queues.events = :default  # Event subscribers (Spree::Events::SubscriberJob)
-# Spree.queues.variants = :default
-# Spree.queues.stock_location_stock_items = :default
-# Spree.queues.coupon_codes = :default
-
-# Use a CDN host for images, eg. Cloudfront
-# This is used in the frontend to generate absolute URLs to images
-# Default is nil and your application host will be used
-# Spree.cdn_host = 'cdn.example.com'
-
-# Use a different service for storage (S3, google, etc)
-# unless Rails.env.test?
-#   Spree.private_storage_service_name = :amazon_public # public assets, such as product images
-#   Spree.public_storage_service_name = :amazon_private # private assets, such as invoices, etc
-# end
 
 # Configure Spree Dependencies
 #
@@ -53,18 +33,14 @@ Spree.dependencies do |dependencies|
   # dependencies.cart_add_item_service = 'MyNewAwesomeService'
 end
 
-# Spree::Api::Dependencies.storefront_cart_serializer = 'MyRailsApp::CartSerializer'
-
-# uncomment lines below to add your own custom business logic
-# such as promotions, shipping methods, etc
 Rails.application.config.after_initialize do
-  # Payment methods and shipping calculators
+  # Spree.shipping_methods << Spree::ShippingMethods::SuperExpensiveNotVeryFastShipping
   # Spree.payment_methods << Spree::PaymentMethods::VerySafeAndReliablePaymentMethod
-  # Spree.calculators.shipping_methods << Spree::ShippingMethods::SuperExpensiveNotVeryFastShipping
+
   # Spree.calculators.tax_rates << Spree::TaxRates::FinanceTeamForcedMeToCodeThis
 
-  # Stock splitters and adjusters
   # Spree.stock_splitters << Spree::Stock::Splitters::SecretLogicSplitter
+
   # Spree.adjusters << Spree::Adjustable::Adjuster::TaxTheRich
 
   # Custom promotions
@@ -73,49 +49,21 @@ Rails.application.config.after_initialize do
   # Spree.promotions.rules << Spree::Promotions::Rules::OnlyForVIPCustomers
   # Spree.promotions.actions << Spree::Promotions::Actions::GiftWithPurchase
 
-  # Taxon rules
   # Spree.taxon_rules << Spree::TaxonRules::ProductsWithColor
 
-  # Exports and reports
-  # Spree.export_types << Spree::Exports::Payments
+  # Spree.exports << Spree::Exports::Payments
   # Spree.reports << Spree::Reports::MassivelyOvercomplexReportForCfo
 
-  # Admin partials
-  # Spree.admin.partials.product_form << 'spree/admin/products/custom_section'
-
   # Role-based permissions
-  # Configure which permission sets are assigned to each role
-  # More on permission sets: https://spreecommerce.org/docs/developer/customization/permissions
   Spree.permissions.assign(:default, [Spree::PermissionSets::DefaultCustomer])
   Spree.permissions.assign(:admin, [Spree::PermissionSets::SuperUser])
-
-  # Example: Create a custom role with specific permissions
-  # Spree.permissions.assign(:customer_service, [
-  #   Spree::PermissionSets::DashboardDisplay,
-  #   Spree::PermissionSets::OrderManagement,
-  #   Spree::PermissionSets::UserDisplay
-  # ])
-  #
-  # Available permission sets:
-  # - Spree::PermissionSets::SuperUser (full admin access)
-  # - Spree::PermissionSets::DefaultCustomer (storefront access)
-  # - Spree::PermissionSets::DashboardDisplay (view admin dashboard)
-  # - Spree::PermissionSets::OrderDisplay / OrderManagement
-  # - Spree::PermissionSets::ProductDisplay / ProductManagement
-  # - Spree::PermissionSets::UserDisplay / UserManagement
-  # - Spree::PermissionSets::StockDisplay / StockManagement
-  # - Spree::PermissionSets::PromotionManagement
-  # - Spree::PermissionSets::ConfigurationManagement
-  # - Spree::PermissionSets::RoleManagement
 end
 
-Spree.user_class = "Spree::User"
-Spree.admin_user_class = "Spree::AdminUser"
+Spree.user_class = 'Spree::User'
+Spree.admin_user_class = 'Spree::AdminUser'
 
-            Rails.application.config.to_prepare do
-              require_dependency 'spree/authentication_helpers'
-            end
+Rails.application.config.to_prepare do
+  require_dependency 'spree/authentication_helpers'
+end
 
-            if defined?(Devise) && Devise.respond_to?(:parent_controller)
-              Devise.parent_controller = "Spree::BaseController"
-            end
+Devise.parent_controller = 'Spree::BaseController' if defined?(Devise) && Devise.respond_to?(:parent_controller)

@@ -3,6 +3,7 @@ import type { ScaffoldOptions, PackageManager } from './types.js'
 
 interface PromptFlags {
   directory?: string
+  noStorefront?: boolean
   noSampleData?: boolean
   noStart?: boolean
   packageManager?: PackageManager
@@ -24,6 +25,22 @@ export async function runPrompts(flags: PromptFlags): Promise<Omit<ScaffoldOptio
   if (p.isCancel(directory)) {
     p.cancel('Setup cancelled.')
     process.exit(0)
+  }
+
+  let storefront: boolean
+  if (flags.noStorefront !== undefined) {
+    storefront = !flags.noStorefront
+  } else {
+    const storefrontResult = await p.confirm({
+      message: 'Include Next.js storefront?',
+      initialValue: true,
+    })
+
+    if (p.isCancel(storefrontResult)) {
+      p.cancel('Setup cancelled.')
+      process.exit(0)
+    }
+    storefront = storefrontResult
   }
 
   let sampleData: boolean
@@ -60,6 +77,7 @@ export async function runPrompts(flags: PromptFlags): Promise<Omit<ScaffoldOptio
 
   return {
     directory,
+    storefront,
     sampleData,
     start,
     packageManager: flags.packageManager ?? 'npm',

@@ -150,30 +150,30 @@ describe('rootPackageJsonContent', () => {
 
 describe('readmeContent', () => {
   it('includes the project name as heading', () => {
-    const content = readmeContent('my-store', 3000)
+    const content = readmeContent('my-store', true, 3000)
     expect(content).toContain('# my-store')
   })
 
   it('includes admin credentials', () => {
-    const content = readmeContent('my-store', 3000)
+    const content = readmeContent('my-store', true, 3000)
     expect(content).toContain('spree@example.com')
     expect(content).toContain('spree123')
   })
 
   it('includes storefront section', () => {
-    const content = readmeContent('my-store', 3000)
+    const content = readmeContent('my-store', true, 3000)
     expect(content).toContain('storefront')
     expect(content).toContain('npm run dev')
   })
 
   it('includes eject instructions', () => {
-    const content = readmeContent('my-store', 3000)
+    const content = readmeContent('my-store', true, 3000)
     expect(content).toContain('spree eject')
     expect(content).toContain('backend/')
   })
 
   it('uses spree cli commands', () => {
-    const content = readmeContent('my-store', 3000)
+    const content = readmeContent('my-store', true, 3000)
     expect(content).toContain('`spree dev`')
     expect(content).toContain('`spree stop`')
     expect(content).toContain('`spree eject`')
@@ -185,7 +185,7 @@ describe('readmeContent', () => {
   })
 
   it('uses custom port in URLs', () => {
-    const content = readmeContent('my-store', 4567)
+    const content = readmeContent('my-store', true, 4567)
     expect(content).toContain('http://localhost:4567/admin')
     expect(content).toContain('http://localhost:4567/api/v3/store')
   })

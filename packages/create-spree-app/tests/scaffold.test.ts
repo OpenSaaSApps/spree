@@ -45,6 +45,7 @@ describe('scaffold (no-start)', () => {
 
     await scaffold({
       directory: projectDir,
+      storefront: true,
       sampleData: false,
       start: false,
       packageManager: 'npm',
@@ -64,6 +65,7 @@ describe('scaffold (no-start)', () => {
 
     await scaffold({
       directory: projectDir,
+      storefront: true,
       sampleData: false,
       start: false,
       packageManager: 'npm',
@@ -79,6 +81,7 @@ describe('scaffold (no-start)', () => {
 
     await scaffold({
       directory: projectDir,
+      storefront: true,
       sampleData: false,
       start: false,
       packageManager: 'npm',
@@ -95,6 +98,7 @@ describe('scaffold (no-start)', () => {
 
     await scaffold({
       directory: projectDir,
+      storefront: true,
       sampleData: false,
       start: false,
       packageManager: 'npm',
@@ -111,6 +115,7 @@ describe('scaffold (no-start)', () => {
 
     await scaffold({
       directory: projectDir,
+      storefront: true,
       sampleData: false,
       start: false,
       packageManager: 'npm',

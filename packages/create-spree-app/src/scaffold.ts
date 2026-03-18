@@ -17,7 +17,7 @@ import { downloadBackend } from './backend.js'
 export async function scaffold(options: ScaffoldOptions): Promise<void> {
   const projectDir = path.resolve(options.directory)
   const projectName = path.basename(projectDir)
-  const { port } = options
+  const { port, storefront } = options
 
   // Pre-flight checks
   if (options.start) {
@@ -46,7 +46,7 @@ export async function scaffold(options: ScaffoldOptions): Promise<void> {
   fs.writeFileSync(path.join(projectDir, 'docker-compose.dev.yml'), dockerComposeDevContent())
   fs.writeFileSync(path.join(projectDir, '.env'), envContent(generateSecretKeyBase(), port))
   fs.writeFileSync(path.join(projectDir, 'package.json'), rootPackageJsonContent(projectName))
-  fs.writeFileSync(path.join(projectDir, 'README.md'), readmeContent(projectName, port))
+  fs.writeFileSync(path.join(projectDir, 'README.md'), readmeContent(projectName, storefront, port))
   fs.writeFileSync(path.join(projectDir, '.gitignore'), gitignoreContent())
 
   s.stop('Project structure created.')
@@ -56,21 +56,23 @@ export async function scaffold(options: ScaffoldOptions): Promise<void> {
   await installRootDeps(projectDir, options.packageManager)
   s.stop('Dependencies installed.')
 
-  // Phase 2: Backend
+  // Phase 2: Backend (always included)
   s.start('Downloading backend template...')
   await downloadBackend(projectDir)
   s.stop('Backend template downloaded.')
 
-  // Phase 3: Storefront
-  s.start('Downloading storefront template...')
-  await downloadStorefront(projectDir)
-  s.stop('Storefront template downloaded.')
+  // Phase 3: Storefront (optional)
+  if (storefront) {
+    s.start('Downloading storefront template...')
+    await downloadStorefront(projectDir)
+    s.stop('Storefront template downloaded.')
 
-  writeStorefrontEnv(projectDir, port)
+    writeStorefrontEnv(projectDir, port)
 
-  s.start('Installing storefront dependencies...')
-  await installStorefrontDeps(projectDir, options.packageManager)
-  s.stop('Storefront dependencies installed.')
+    s.start('Installing storefront dependencies...')
+    await installStorefrontDeps(projectDir, options.packageManager)
+    s.stop('Storefront dependencies installed.')
+  }
 
   // Phase 4: Initialize and start services
   if (options.start) {
@@ -82,25 +84,35 @@ export async function scaffold(options: ScaffoldOptions): Promise<void> {
       stdio: 'inherit',
     })
 
-    p.log.info(
-      `${pc.bold('Storefront')}: ${pc.cyan(`cd ${projectName}/apps/storefront && npm run dev`)}`,
-    )
+    if (storefront) {
+      p.log.info(
+        `${pc.bold('Storefront')}: ${pc.cyan(`cd ${projectName}/apps/storefront && npm run dev`)}`,
+      )
+    }
   } else {
-    printSuccessWithoutDocker(projectName, port)
+    printSuccessWithoutDocker(projectName, storefront, port)
   }
 }
 
-function printSuccessWithoutDocker(projectName: string, port: number): void {
+function printSuccessWithoutDocker(projectName: string, hasStorefront: boolean, port: number): void {
   const lines: string[] = [
     '',
     `${pc.bold('Next steps:')}`,
     `  cd ${projectName}`,
     `  npx spree dev`,
-    '',
-    `  ${pc.dim('# In another terminal:')}`,
-    `  cd ${projectName}/apps/storefront`,
-    `  npm install`,
-    `  npm run dev`,
+  ]
+
+  if (hasStorefront) {
+    lines.push(
+      '',
+      `  ${pc.dim('# In another terminal:')}`,
+      `  cd ${projectName}/apps/storefront`,
+      `  npm install`,
+      `  npm run dev`,
+    )
+  }
+
+  lines.push(
     '',
     `${pc.bold('Admin Dashboard')}`,
     `  http://localhost:${port}/admin`,
@@ -110,7 +122,7 @@ function printSuccessWithoutDocker(projectName: string, port: number): void {
     `${pc.bold('Customize the backend')}`,
     `  npx spree eject`,
     `  ${pc.dim('# Then edit backend/Gemfile, backend/app/, backend/config/')}`,
-  ]
+  )
 
   p.note(lines.join('\n'), 'Project created!')
 }

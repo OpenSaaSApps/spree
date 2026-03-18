@@ -1,7 +1,7 @@
 import { STOREFRONT_PORT, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD } from '../constants.js'
 
-export function readmeContent(name: string, port: number): string {
-  return `# ${name}
+export function readmeContent(name: string, hasStorefront: boolean, port: number): string {
+  let content = `# ${name}
 
 A [Spree Commerce](https://spreecommerce.org) project.
 
@@ -25,7 +25,10 @@ Wait for the services to be healthy, then open:
   - Password: \`${DEFAULT_ADMIN_PASSWORD}\`
 - **Store API:** http://localhost:${port}/api/v3/store
 - **Mailpit (email inbox):** http://localhost:8025
+`
 
+  if (hasStorefront) {
+    content += `
 ### Start the storefront
 
 \`\`\`bash
@@ -35,7 +38,10 @@ npm run dev
 \`\`\`
 
 Open http://localhost:${STOREFRONT_PORT}
+`
+  }
 
+  content += `
 ## Customizing the Backend
 
 The \`backend/\` directory contains a full Rails application with Spree installed. By default, the project uses a prebuilt Docker image. To switch to building from your local backend:
@@ -90,4 +96,6 @@ This project uses [\`@spree/cli\`](https://www.npmjs.com/package/@spree/cli) to 
 - [Store API Reference](https://docs.spreecommerce.org/api-reference/store)
 - [Spree GitHub](https://github.com/spree/spree)
 `
+
+  return content
 }

@@ -1,5 +1,11 @@
 # @spree/sdk
 
+## 0.14.1
+
+### Patch Changes
+
+- Added `use_shipping` option to `UpdateCartParams` — when `true`, copies the shipping address to billing address (billing same as shipping). Write-only flag, not returned in cart responses.
+
 ## 0.14.0
 
 ### Minor Changes

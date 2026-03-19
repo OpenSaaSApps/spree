@@ -166,9 +166,9 @@ module Spree
 
     accepts_nested_attributes_for :line_items
     accepts_nested_attributes_for :bill_address
+    accepts_nested_attributes_for :ship_address
     alias shipping_address_attributes= ship_address_attributes=
     alias billing_address_attributes= bill_address_attributes=
-    accepts_nested_attributes_for :ship_address
     accepts_nested_attributes_for :payments, reject_if: :credit_card_nil_payment?
     accepts_nested_attributes_for :shipments
 

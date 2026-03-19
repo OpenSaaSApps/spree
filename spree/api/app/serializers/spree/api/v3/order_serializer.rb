@@ -24,7 +24,7 @@ module Spree
                    :discount_total, :display_discount_total,
                    :tax_total, :display_tax_total, :included_tax_total, :display_included_tax_total,
                    :additional_tax_total, :display_additional_tax_total, :total, :display_total,
-                   :delivery_total, :display_delivery_total, :fulfillment_status, :fulfillment_status,
+                   :delivery_total, :display_delivery_total, :fulfillment_status, :payment_status,
                    completed_at: :iso8601, created_at: :iso8601, updated_at: :iso8601
 
         many :discounts, resource: Spree.api.discount_serializer

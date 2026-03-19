@@ -31,6 +31,7 @@ export const OrderSchema = z.object({
   delivery_total: z.string(),
   display_delivery_total: z.string(),
   fulfillment_status: z.string().nullable(),
+  payment_status: z.string().nullable(),
   completed_at: z.string().nullable(),
   created_at: z.string(),
   updated_at: z.string(),

@@ -15,11 +15,16 @@
     "url": "https://github.com/spree/spree/issues"
   },
   "files": [
-    "dist/**/*.md"
+    "dist/**/*.md",
+    "dist/**/*.yaml"
   ],
   "scripts": {
     "build": "node scripts/build.js",
+    "test": "vitest run",
     "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
   },
   "engines": {
     "node": ">=18.0.0"
